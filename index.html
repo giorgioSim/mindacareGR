@@ -1,0 +1,2950 @@
+<!DOCTYPE html>
+<html lang="el">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindCare - Premium Mental Health App</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage-green: #D4E6D0;
+            --lavender: #E8E2F5;
+            --light-purple: #F0EBF8;
+            --slate-800: #1e293b;
+            --slate-500: #64748b;
+            --bg-glass: rgba(255, 255, 255, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.8);
+            --card-shadow: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--sage-green), var(--lavender), var(--light-purple));
+            min-height: 100vh;
+            color: var(--slate-800);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Blobs for depth */
+        .blob-1,
+        .blob-2 {
+            position: fixed;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(80px);
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(212, 230, 208, 0.9);
+            animation: float1 15s ease-in-out infinite alternate;
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(232, 226, 245, 0.9);
+            animation: float2 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes float1 {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(50px, 50px) scale(1.1);
+            }
+        }
+
+        @keyframes float2 {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(-50px, -50px) scale(1.1);
+            }
+        }
+
+        #root {
+            padding-bottom: 90px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        @media (min-width: 1024px) {
+            #root {
+                flex-direction: row;
+                padding-bottom: 0;
+            }
+            .app-container {
+                flex: 1;
+                padding-left: 280px; /* Sidebar width */
+            }
+        }
+
+        /* Shared Components */
+        .glass-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid var(--border-glass);
+            padding: 24px;
+            box-shadow: 0 8px 32px var(--card-shadow);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-btn {
+            background: linear-gradient(135deg, var(--sage-green), var(--lavender));
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 14px 24px;
+            color: var(--slate-800);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .glass-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #cde3c9, #e0d8f0);
+        }
+
+        .glass-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .glass-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 16px;
+            font-size: 16px;
+            color: var(--slate-800);
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-input::placeholder {
+            color: var(--slate-500);
+            opacity: 0.7;
+        }
+
+        .glass-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.8);
+            border-color: #d1c4e9;
+            box-shadow: 0 0 0 4px rgba(232, 226, 245, 0.4);
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: var(--slate-800);
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            color: var(--slate-500);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* Floating Bottom Nav (Mobile Only) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 500px;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 8px;
+            border-radius: 30px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        @media (min-width: 1024px) {
+            .bottom-nav { display: none; }
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--slate-500);
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .nav-item.active {
+            color: var(--slate-800);
+            background: rgba(255, 255, 255, 0.5);
+            font-weight: 700;
+        }
+
+        .nav-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.active .nav-icon {
+            transform: translateY(-2px);
+        }
+
+        /* Specific Views */
+        .emoji-selector {
+            display: flex;
+            justify-content: space-between;
+            margin: 24px 0;
+            padding: 0 10px;
+        }
+
+        .emoji-btn {
+            font-size: 32px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .emoji-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .emoji-btn.selected {
+            transform: scale(1.15);
+            background: rgba(255, 255, 255, 0.9);
+            border-color: var(--lavender);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            filter: grayscale(0) !important;
+        }
+
+        .emoji-selector.has-selection .emoji-btn:not(.selected) {
+            filter: grayscale(1) opacity(0.6);
+            transform: scale(0.95);
+        }
+
+        .chart-container {
+            height: 160px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 30px;
+            padding-top: 20px;
+        }
+
+        .chart-bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .chart-bar {
+            width: 100%;
+            max-width: 30px;
+            background: linear-gradient(to top, #b8d4b2, #d1c4e9);
+            border-radius: 8px 8px 0 0;
+            transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-bottom: none;
+            position: relative;
+        }
+
+        .chart-bar:hover {
+            filter: brightness(1.05);
+        }
+
+        .chart-label {
+            font-size: 11px;
+            color: var(--slate-500);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* Chat UI */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.2);
+            border-radius: 10px;
+        }
+
+        .chat-bubble {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-bubble.user {
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+            color: var(--slate-800);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .chat-bubble.ai {
+            background: linear-gradient(135deg, rgba(212, 230, 208, 0.5), rgba(232, 226, 245, 0.5));
+            border-bottom-left-radius: 4px;
+            margin-right: auto;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chat-input-area .glass-input {
+            margin-bottom: 0;
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 25px;
+        }
+
+        .chat-input-area .glass-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            padding: 0;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        header {
+            padding: 40px 24px 20px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            background: linear-gradient(to right, #43a047, #7e57c2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header .date-badge {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--slate-500);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .main-content {
+            padding: 0 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            animation: fadeInPage 0.4s ease;
+        }
+
+        @keyframes fadeInPage {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading animation */
+        .typing-indicator {
+            display: flex;
+            gap: 6px;
+            padding: 16px 20px !important;
+            align-items: center;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--slate-500);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+            opacity: 0.6;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* Profile avatar */
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--sage-green), var(--lavender));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 4px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* Auth Screen */
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .auth-logo {
+            font-size: 42px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #43a047, #7e57c2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--slate-500);
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .journal-textarea {
+            height: 180px;
+            resize: none;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .ai-analysis-card {
+            border-left: 4px solid #b8d4b2;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        /* New Premium Features */
+        .affirmation-card {
+            background: linear-gradient(135deg, rgba(232, 226, 245, 0.8), rgba(255, 255, 255, 0.9));
+            border-left: 4px solid #a855f7;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .affirmation-card::after {
+            content: '✨';
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 24px;
+            opacity: 0.5;
+        }
+
+        .mindfulness-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .breathing-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--sage-green) 0%, rgba(212, 230, 208, 0.3) 100%);
+            box-shadow: 0 0 50px rgba(212, 230, 208, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--slate-800);
+            margin: 40px auto;
+            transition: all 0.5s linear;
+        }
+
+        .breathing-circle.inhale {
+            transform: scale(1.6);
+            background: radial-gradient(circle, var(--sage-green) 0%, rgba(212, 230, 208, 0.6) 100%);
+        }
+
+        .breathing-circle.exhale {
+            transform: scale(1);
+        }
+
+        /* Panic Button & Modal */
+        .sos-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            cursor: pointer;
+            z-index: 2000;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        @media (min-width: 1024px) {
+            .sos-btn { bottom: 30px; right: 30px; }
+        }
+
+        .sos-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+        }
+
+        .sos-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .sos-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+            padding: 30px;
+            border-radius: 30px;
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .sos-card h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .sos-card p {
+            color: #cbd5e1;
+        }
+
+        .sos-card ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+            color: #cbd5e1;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .sos-card li {
+            margin-bottom: 8px;
+        }
+
+        .emergency-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 12px 20px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        /* Badge Style */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+            margin: 4px;
+        }
+
+        /* Ambient Player Styles */
+        .ambient-player {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sound-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            font-size: 20px;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .sound-menu {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 160px;
+            animation: slideInDown 0.3s ease;
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sound-option {
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sound-option:hover {
+            background: rgba(0,0,0,0.03);
+        }
+
+        .sound-option.active {
+            background: var(--sage-green);
+            color: var(--slate-800);
+        }
+
+        /* Gratitude Section Styles */
+        .gratitude-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .gratitude-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.4);
+            padding: 8px 16px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: all 0.3s ease;
+        }
+
+        .gratitude-item:focus-within {
+            background: rgba(255,255,255,0.7);
+            border-color: var(--lavender);
+        }
+
+        .gratitude-item span {
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        .gratitude-item input {
+            background: none;
+            border: none;
+            width: 100%;
+            font-size: 15px;
+            color: var(--slate-800);
+            outline: none;
+        }
+
+        /* Breathing Pattern Selector */
+        .pattern-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .pattern-btn {
+            padding: 8px 16px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.4);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--slate-500);
+        }
+
+        .pattern-btn.active {
+            background: var(--slate-800);
+            color: white;
+            border-color: var(--slate-800);
+        }
+        /* Sidebar Styles (Desktop Only) */
+        .sidebar {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 40px 24px;
+            z-index: 1100;
+            flex-direction: column;
+        }
+
+        @media (min-width: 1024px) {
+            .sidebar { display: flex; }
+            .main-content {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+                padding: 0 40px 40px;
+                align-content: start;
+            }
+            .full-width { grid-column: span 2; }
+            header { 
+                padding: 40px 40px 20px;
+                grid-column: span 2;
+                text-align: left;
+                justify-content: flex-start;
+                gap: 20px;
+            }
+            header h1 { font-size: 32px; }
+            .auth-container { max-width: 450px; margin: 0 auto; }
+        }
+
+        .sidebar-logo {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 50px;
+            background: linear-gradient(to right, #43a047, #7e57c2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            border-radius: 18px;
+            color: var(--slate-500);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateX(5px);
+        }
+
+        .sidebar-item.active {
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--slate-800);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sidebar-icon { font-size: 20px; }
+
+        /* Quiz Styles */
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .quiz-progress {
+            height: 6px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 3px;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+        .quiz-progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #43a047, #7e57c2);
+            transition: width 0.4s ease;
+        }
+        .quiz-question {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+        .quiz-options {
+            display: grid;
+            gap: 16px;
+        }
+        .quiz-option {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            padding: 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 18px;
+            text-align: left;
+        }
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .matching-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+        .matching-loader {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(126, 87, 194, 0.1);
+            border-top: 4px solid #7e57c2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .reveal-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 40px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            text-align: center;
+            animation: scaleIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .reveal-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--sage-green), var(--lavender));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .approach-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(126, 87, 194, 0.1);
+            color: #7e57c2;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        /* Specific Journal & Tab Styles */
+        .journal-container {
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .tab-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            padding: 6px;
+            gap: 6px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab-switcher button {
+            flex: 1;
+            padding: 12px;
+            border: none !important;
+            background: transparent !important;
+            border-radius: 12px;
+            color: var(--slate-600);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 14px;
+            height: auto !important; /* Fix for huge buttons */
+            min-height: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-switcher button.active {
+            background: white !important;
+            color: var(--slate-900) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            margin-bottom: 20px;
+        }
+
+        .search-row .glass-input {
+            flex: 2;
+            margin-bottom: 0 !important;
+        }
+
+        .search-row .glass-btn {
+            flex: 1;
+            white-space: nowrap;
+        }
+
+        .search-result-item {
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.4);
+            transition: transform 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            transform: translateX(5px);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .ai-analysis-card {
+            background: linear-gradient(135deg, rgba(184, 212, 178, 0.2), rgba(255, 255, 255, 0.4));
+            border-left: 5px solid var(--sage-green) !important;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <!-- Firebase SDK Setup -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAC4AX9mj4zZ94nDb6IDsOMPzMhreLaDz8",
+            authDomain: "mindcare-app-39e8f.firebaseapp.com",
+            projectId: "mindcare-app-39e8f",
+            storageBucket: "mindcare-app-39e8f.firebasestorage.app",
+            messagingSenderId: "214468854747",
+            appId: "1:214468854747:web:f805f6d533c94c38089dfe",
+            measurementId: "G-Q0LNKT631W"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Expose to window for Babel Script to consume
+        window.fb = {
+            auth, db,
+            signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut,
+            doc, setDoc, getDoc, updateDoc, onSnapshot
+        };
+
+        // Notify React when ready
+        window.dispatchEvent(new Event('firebaseInit'));
+    </script>
+
+    <!-- React 18, ReactDOM 18 and Babel via CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- App Logic -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Empty Data Generator ---
+        const getEmptyChartData = () => {
+            const allDays = ['Κυρ', 'Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ'];
+            const todayIndex = new Date().getDay();
+
+            // Generate last 7 days ending today
+            const data = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                data.push({
+                    day: allDays[d.getDay()],
+                    value: 0 // 0 means empty
+                });
+            }
+            return data;
+        };
+
+        // Default User Data State Structure
+        const defaultUserData = {
+            name: '',
+            age: '',
+            gender: '',
+            affirmationText: '',
+            affirmationDate: '',
+            chartData: getEmptyChartData(),
+            todayMood: null,
+            todayJournal: '',
+            todayAnalysis: '',
+            chatHistory: [{ role: 'ai', text: 'Γεια σου! Είμαι ο Ψηφιακός Σύμβουλος του MindCare. Είμαι εδώ για να σε ακούσω χωρίς κριτική. Πώς πάνε τα πράγματα σήμερα;' }],
+            gratitude: ['', '', ''],
+            selectedSound: null,
+            moodHistory: {}, // { 'YYYY-MM-DD': value }
+            dailyChallenge: { id: null, date: null, completed: false },
+            // Gamification
+            lastMoodDate: null,
+            currentStreak: 0,
+            longestStreak: 0,
+            badges: [],
+            assignedDoctor: null,
+            quizCompleted: false
+        };
+
+        const DOCTORS = [
+            {
+                id: 'elena',
+                name: 'Έλενα',
+                prefix: 'η',
+                gender: 'female',
+                emoji: '👩‍⚕️',
+                tagline: 'Ηρεμία μέσα από την Επίγνωση',
+                approach: 'Γνωσιακή Συμπεριφορική Θεραπεία (CBT) & Mindfulness',
+                description: 'Η Έλενα ειδικεύεται στη διαχείριση άγχους και πανικού. Χρησιμοποιεί πρακτικές ασκήσεις αναπνοής και τεχνικές CBT για να σας βοηθήσει να ανακτήσετε τον έλεγχο των σκέψεών σας.',
+                systemPrompt: 'Είσαι η Έλενα, μια έμπειρη ψυχολόγος με εξειδίκευση στη CBT και το Mindfulness. Μιλάς με ηρεμία, ενσυναισθητική κατανόηση και προτείνεις συχνά πρακτικές ασκήσεις.'
+            },
+            {
+                id: 'andreas',
+                name: 'Ανδρέας',
+                prefix: 'ο',
+                gender: 'male',
+                emoji: '👨‍⚕️',
+                tagline: 'Κατανοώντας το Βάθος των Συναισθημάτων',
+                approach: 'Ψυχοδυναμική Προσέγγιση',
+                description: 'Ο Ανδρέας βοηθά στην εξερεύνηση των βαθύτερων αιτιών των συναισθημάτων. Είναι ιδανικός για όσους θέλουν να κατανοήσουν πώς το παρελθόν επηρεάζει το παρόν τους.',
+                systemPrompt: 'Είσαι ο Ανδρέας, ένας ψυχολόγος ψυχοδυναμικής κατεύθυνσης. Είσαι υπομονετικός, παρατηρητικός και βοηθάς τον χρήστη να κάνει συνδέσεις με τα εσωτερικά του κίνητρα.'
+            },
+            {
+                id: 'sofia',
+                name: 'Σοφία',
+                prefix: 'η',
+                gender: 'female',
+                emoji: '👩‍🔬',
+                tagline: 'Λύσεις για το Σήμερα',
+                approach: 'Solution-Focused Brief Therapy (SFBT)',
+                description: 'Η Σοφία επικεντρώνεται στο παρόν και στο μέλλον. Σας βοηθά να βρείτε άμεσες λύσεις και να θέσετε εφικτούς στόχους για να βελτιώσετε τη ζωή σας.',
+                systemPrompt: 'Είσαι η Σοφία, μια ψυχολόγος που επικεντρώνεται στην εξεύρεση λύσεων (SFBT). Είσαι πρακτική, αισιόδοξη και βοηθάς τον χρήστη να θέσει συγκεκριμένους στόχους.'
+            },
+            {
+                id: 'nikos',
+                name: 'Νίκος',
+                prefix: 'ο',
+                gender: 'male',
+                emoji: '👨‍🎨',
+                tagline: 'Ο Άνθρωπος στο Επίκεντρο',
+                approach: 'Προσωποκεντρική (Humanistic) Προσέγγιση',
+                description: 'Ο Νίκος προσφέρει έναν ασφαλή χώρο χωρίς κριτική. Η προσέγγισή του βασίζεται στην αποδοχή και την αυθεντικότητα, βοηθώντας σας να βρείτε τη δική σας εσωτερική δύναμη.',
+                systemPrompt: 'Είσαι ο Νίκος, ένας ανθρωπιστής ψυχολόγος. Είσαι ζεστός, αυθεντικός και προσφέρεις αμέριστη αποδοχή, ενθαρρύνοντας την αυτοεξερεύνηση του χρήστη.'
+            }
+        ];
+
+        const QUESTIONS = [
+            {
+                id: 1,
+                text: 'Πώς θα περιέγραφες την τρέχουσα συναισθηματική σου κατάσταση;',
+                options: [
+                    { text: '😰 Αγχωμένος/η', weight: { elena: 3, andreas: 1, sofia: 1, nikos: 1 } },
+                    { text: '😔 Πεσμένος/η & αποκομμένος/η', weight: { elena: 1, andreas: 3, sofia: 1, nikos: 1 } },
+                    { text: '😵‍💫 Μπερδεμένος/η από αλλαγές', weight: { elena: 1, andreas: 1, sofia: 3, nikos: 1 } },
+                    { text: '😶 Προβληματισμένος/η με τους άλλους', weight: { elena: 1, andreas: 1, sofia: 1, nikos: 3 } }
+                ]
+            },
+            {
+                id: 2,
+                text: 'Ποιος είναι ο κύριος στόχος σου από τις συνεδρίες;',
+                options: [
+                    { text: '🧘 Να ηρεμήσω το μυαλό μου', weight: { elena: 3, andreas: 1, sofia: 1, nikos: 1 } },
+                    { text: '🔍 Να καταλάβω καλύτερα τον εαυτό μου', weight: { elena: 1, andreas: 3, sofia: 1, nikos: 1 } },
+                    { text: '🚀 Να χτίσω ένα καλύτερο μέλλον', weight: { elena: 1, andreas: 1, sofia: 3, nikos: 1 } },
+                    { text: '💬 Να βελτιώσω τις σχέσεις μου', weight: { elena: 1, andreas: 1, sofia: 1, nikos: 3 } }
+                ]
+            },
+            {
+                id: 3,
+                text: 'Όταν κάτι σε αναστατώνει, συνήθως:',
+                options: [
+                    { text: '🌀 Το υπεραναλύω', weight: { elena: 2, andreas: 3, sofia: 1, nikos: 1 } },
+                    { text: '🔇 Αποσύρομαι και κλείνομαι', weight: { elena: 2, andreas: 3, sofia: 1, nikos: 1 } },
+                    { text: '⚡ Παίρνω γρήγορες αποφάσεις', weight: { elena: 1, andreas: 1, sofia: 3, nikos: 1 } },
+                    { text: '💭 Μιλάω σε κάποιον δικό μου', weight: { elena: 1, andreas: 1, sofia: 1, nikos: 3 } }
+                ]
+            },
+            {
+                id: 4,
+                text: 'Ποιο περιβάλλον σε κάνει να νιώθεις πιο άνετα;',
+                options: [
+                    { text: '🌿 Ήρεμο και φυσικό', weight: { elena: 3, andreas: 1, sofia: 1, nikos: 1 } },
+                    { text: '📚 Δομημένο και εστιασμένο', weight: { elena: 1, andreas: 3, sofia: 1, nikos: 1 } },
+                    { text: '🌆 Δυναμικό και ενεργητικό', weight: { elena: 1, andreas: 1, sofia: 3, nikos: 1 } },
+                    { text: '👥 Κοινωνικό και συνδεδεμένο', weight: { elena: 1, andreas: 1, sofia: 1, nikos: 3 } }
+                ]
+            },
+            {
+                id: 5,
+                text: 'Τι είδους υποστήριξη προτιμάς;',
+                options: [
+                    { text: '🤗 Τρυφερή και προστατευτική', weight: { elena: 3, andreas: 1, sofia: 1, nikos: 1 } },
+                    { text: '🧩 Βαθιά και αναλυτική', weight: { elena: 1, andreas: 3, sofia: 1, nikos: 1 } },
+                    { text: '🎯 Προσανατολισμένη στη δράση', weight: { elena: 1, andreas: 1, sofia: 3, nikos: 1 } },
+                    { text: '🫂 Απλά να με ακούσουν', weight: { elena: 1, andreas: 1, sofia: 1, nikos: 3 } }
+                ]
+            },
+            {
+                id: 6,
+                text: 'Πόσο καιρό βιώνεις αυτά τα συναισθήματα;',
+                options: [
+                    { text: '📅 Πολύ πρόσφατα', weight: { elena: 2, andreas: 1, sofia: 2, nikos: 2 } },
+                    { text: '🗓️ Λίγους μήνες', weight: { elena: 2, andreas: 2, sofia: 2, nikos: 2 } },
+                    { text: '📆 Πάνω από χρόνο', weight: { elena: 1, andreas: 3, sofia: 1, nikos: 1 } },
+                    { text: '⏳ Για όσο θυμάμαι τον εαυτό μου', weight: { elena: 1, andreas: 3, sofia: 1, nikos: 1 } }
+                ]
+            }
+        ];
+
+        // --- Common Custom Hook built on Firestore ---
+        // This keeps React components perfectly in sync with Firestore!
+        const useUserData = (user) => {
+            const [userData, setUserData] = useState(defaultUserData);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                if (!user || !window.fb) return;
+
+                const userDocRef = window.fb.doc(window.fb.db, "users", user.uid);
+
+                // Real-time listener
+                const unsubscribe = window.fb.onSnapshot(userDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        setUserData({ ...defaultUserData, ...docSnap.data(), uid: user.uid });
+                    } else {
+                        // Create initial doc
+                        window.fb.setDoc(userDocRef, defaultUserData);
+                    }
+                    setLoading(false);
+                });
+
+                return () => unsubscribe();
+            }, [user]);
+
+            const updateData = async (updates) => {
+                if (!user || !window.fb) return;
+                const userDocRef = window.fb.doc(window.fb.db, "users", user.uid);
+                await window.fb.updateDoc(userDocRef, updates);
+            };
+
+            return { userData, updateData, dataLoading: loading };
+        };
+
+        const API_KEY = "AIzaSyCE5JFbBD8cPIhgrTNcF4bD8u5LeQYs-qQ";
+
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://hgpxxaqpngwzegrrjpti.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhncHh4YXFwbmd3emVncnJqcHRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNDQ1NDAsImV4cCI6MjA5MzgyMDU0MH0.7m9McIlcbaifFRzk8qh3isKWka7-rkIxQCmd1fQ0mvs';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // --- Utility: Gemini API Fetch ---
+        const getEmbedding = async (text) => {
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent?key=${API_KEY}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: { parts: [{ text }] } })
+                });
+                const data = await response.json();
+                if (data.error) return new Array(768).fill(0);
+                return data.embedding.values || new Array(768).fill(0);
+            } catch (e) {
+                return new Array(768).fill(0);
+            }
+        };
+
+        const callGeminiAPI = async (prompt, systemInstruction) => {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+            const fullPrompt = systemInstruction ? `${systemInstruction}\n\n${prompt}` : prompt;
+            const payload = { contents: [{ parts: [{ text: fullPrompt }] }] };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                console.error("Gemini API Error Detail:", data.error);
+                throw new Error(data.error.message);
+            }
+
+            return data.candidates[0].content.parts[0].text;
+        };
+
+        const seedDoctorKnowledge = async () => {
+            const knowledgeBase = [
+                { id: 'elena', content: 'Τεχνική 5-4-3-2-1 για πανικό: 5 πράγματα που βλέπεις, 4 που αγγίζεις, 3 που ακούς, 2 που μυρίζεις, 1 που γεύεσαι.' },
+                { id: 'elena', content: 'Γνωσιακές Διαστρεβλώσεις: Καταστροφολογία (το να περιμένεις πάντα το χειρότερο), Πολωμένη Σκέψη (άσπρο-μαύρο).' },
+                { id: 'andreas', content: 'Αμυντικοί Μηχανισμοί: Προβολή (απόδοση δικών μας συναισθημάτων σε άλλους), Μετάθεση (μεταφορά θυμού σε άλλο πρόσωπο).' },
+                { id: 'sofia', content: 'Η Ερώτηση του Θαύματος (Miracle Question): Αν αύριο όλα είχαν λυθεί μαγικά, τι θα ήταν διαφορετικό; Πώς θα ένιωθες;' },
+                { id: 'nikos', content: 'Ανεπιφύλακτη Θετική Αναγνώριση: Η αποδοχή του εαυτού μας χωρίς όρους, ακόμα και στις δύσκολες στιγμές μας.' }
+            ];
+
+            for (const item of knowledgeBase) {
+                const embedding = await getEmbedding(item.content);
+                await supabase.from('doctor_knowledge').insert({
+                    doctor_id: item.id,
+                    content: item.content,
+                    embedding
+                });
+            }
+            alert('Οι γνώσεις των γιατρών ενημερώθηκαν επιτυχώς!');
+        };
+
+        // --- Components ---
+        const MoodHeatmap = ({ moodHistory }) => {
+            const today = new Date();
+            const days = [];
+            
+            // Generate last 28 days (4 weeks)
+            for (let i = 27; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                days.push({
+                    date: dateStr,
+                    value: moodHistory[dateStr] || 0
+                });
+            }
+
+            const getColor = (val) => {
+                if (val === 0) return 'rgba(100, 116, 139, 0.1)';
+                const opacity = 0.2 + (val / 5) * 0.8;
+                return `rgba(67, 160, 71, ${opacity})`; // Green tones
+            };
+
+            return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginTop: '16px' }}>
+                    {days.map((d, i) => (
+                        <div 
+                            key={i} 
+                            style={{ 
+                                width: '100%', 
+                                paddingBottom: '100%', 
+                                background: getColor(d.value), 
+                                borderRadius: '6px',
+                                border: '1px solid rgba(255,255,255,0.1)'
+                            }}
+                            title={`${d.date}: ${d.value}/5`}
+                        />
+                    ))}
+                </div>
+            );
+        };
+
+
+        const Sidebar = ({ currentTab, setTab }) => {
+            const tabs = [
+                { id: 'home', icon: '🏠', label: 'Home' },
+                { id: 'chat', icon: '💬', label: 'Chat' },
+                { id: 'journal', icon: '📓', label: 'Journal' },
+                { id: 'mindfulness', icon: '🍃', label: 'Breathe' },
+                { id: 'crisis', icon: '🆘', label: 'Help' },
+                { id: 'profile', icon: '👤', label: 'Profile' }
+            ];
+
+            return (
+                <div className="sidebar">
+                    <div className="sidebar-logo">MindCare</div>
+                    <div className="sidebar-nav">
+                        {tabs.map(tab => (
+                            <div 
+                                key={tab.id}
+                                className={`sidebar-item ${currentTab === tab.id ? 'active' : ''}`}
+                                onClick={() => setTab(tab.id)}
+                            >
+                                <span className="sidebar-icon">{tab.icon}</span>
+                                <span>{tab.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const BottomNav = ({ currentTab, setTab }) => {
+            const tabs = [
+                { id: 'home', icon: '🏠', label: 'Home' },
+                { id: 'chat', icon: '💬', label: 'Chat' },
+                { id: 'journal', icon: '📓', label: 'Journal' },
+                { id: 'mindfulness', icon: '🍃', label: 'Breathe' },
+                { id: 'crisis', icon: '🆘', label: 'Help' },
+                { id: 'profile', icon: '👤', label: 'Profile' }
+            ];
+
+            return (
+                <div className="bottom-nav">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            className={`nav-item ${currentTab === tab.id ? 'active' : ''}`}
+                            onClick={() => setTab(tab.id)}
+                        >
+                            <span className="nav-icon">{tab.icon}</span>
+                            <span>{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
+            );
+        };
+
+        const Home = ({ userData, updateData }) => {
+            const [insight, setInsight] = useState('');
+            const [loadingInsight, setLoadingInsight] = useState(false);
+            const [loadingAffirmation, setLoadingAffirmation] = useState(false);
+
+            useEffect(() => {
+                const fetchAffirmation = async () => {
+                    const today = new Date().toDateString();
+                    if (userData.name && userData.affirmationDate !== today) {
+                        setLoadingAffirmation(true);
+                        try {
+                            const prompt = `Γράψε μια πολύ σύντομη (1 πρόταση), ενθαρρυντική, και θετική "δήλωση της ημέρας" (daily affirmation) στα Ελληνικά για έναν χρήστη που λέγεται ${userData.name} (${userData.age} ετών, ${userData.gender}). Κάνε το να ακούγεται ζεστό και υποστηρικτικό.`;
+                            const systemContext = "Είσαι ένα θετικό AI. Απάντα μόνο με την πρόταση, χωρίς εισαγωγικά, στα Ελληνικά.";
+                            const text = await callGeminiAPI(prompt, systemContext);
+                            await updateData({ affirmationText: text, affirmationDate: today });
+                        } catch (e) {
+                            console.error("Affirmation error:", e);
+                        } finally {
+                            setLoadingAffirmation(false);
+                        }
+                    }
+                };
+                fetchAffirmation();
+            }, [userData.name, userData.affirmationDate, updateData]);
+
+            const emojis = [
+                { val: 1, char: '😢', label: 'Πολύ άσχημα' },
+                { val: 2, char: '🙁', label: 'Άσχημα' },
+                { val: 3, char: '😐', label: 'Μέτρια' },
+                { val: 4, char: '🙂', label: 'Καλά' },
+                { val: 5, char: '😁', label: 'Πολύ καλά' }
+            ];
+
+            const handleSelect = (val) => {
+                let newChartData = [...(userData.chartData || [])];
+                const allDays = ['Κυρ', 'Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ'];
+                const today = new Date();
+                const todayName = allDays[today.getDay()];
+                const todayStr = today.toDateString();
+
+                // Find today's entry and update it
+                const todayIndex = newChartData.findIndex(d => d.day === todayName);
+                if (todayIndex !== -1) {
+                    newChartData[todayIndex].value = val;
+                } else if (newChartData.length > 0) {
+                    newChartData[newChartData.length - 1].value = val;
+                }
+
+                // Gamification Logic
+                let newStreak = userData.currentStreak || 0;
+                let newLongest = userData.longestStreak || 0;
+                let newBadges = [...(userData.badges || [])];
+
+                if (userData.lastMoodDate !== todayStr) {
+                    if (!userData.lastMoodDate) {
+                        newStreak = 1; // First time
+                    } else {
+                        const lastDate = new Date(userData.lastMoodDate);
+                        const diffTime = Math.abs(today - lastDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays === 1) {
+                            newStreak += 1; // Consecutive day
+                        } else if (diffDays > 1) {
+                            newStreak = 1; // Streak broken
+                        }
+                    }
+
+                    if (newStreak > newLongest) newLongest = newStreak;
+
+                    // Award badges
+                    if (newStreak === 1 && !newBadges.includes("Ο Σπόρος 🌱")) newBadges.push("Ο Σπόρος 🌱");
+                    if (newStreak === 3 && !newBadges.includes("Η Επίγνωση 🌼")) newBadges.push("Η Επίγνωση 🌼");
+                    if (newStreak === 7 && !newBadges.includes("Zen Master 🧘")) newBadges.push("Zen Master 🧘");
+                }
+
+                // Update History Map
+                const dateKey = new Date().toISOString().split('T')[0];
+                const newHistoryMap = { ...(userData.moodHistory || {}), [dateKey]: val };
+
+                updateData({
+                    todayMood: val,
+                    chartData: newChartData,
+                    moodHistory: newHistoryMap,
+                    lastMoodDate: todayStr,
+                    currentStreak: newStreak,
+                    longestStreak: newLongest,
+                    badges: newBadges
+                });
+            };
+
+            const handleWeeklyInsight = async () => {
+                setLoadingInsight(true);
+                try {
+                    const dataStr = (userData.chartData || []).map(d => `${d.day}:${d.value}/5`).join(', ');
+                    const prompt = `Παρακάτω είναι η διάθεση του χρήστη (${userData.name}) για την εβδομάδα (1=Άσχημα, 5=Πολύ Καλά):\n${dataStr}\n\nΔώσε μια πολύ σύντομη ανάλυση 2-3 προτάσεων και ένα tip για την επόμενη εβδομάδα. Απάντα στα Ελληνικά με τρυφερό και υποστηρικτικό ύφος.`;
+                    const systemContext = "Είσαι έμπειρος ψυχολόγος. Γράψε ένα σύντομο και περιεκτικό εβδομαδιαίο απολογισμό διάθεσης.";
+                    const result = await callGeminiAPI(prompt, systemContext);
+                    setInsight(result);
+                } catch (e) {
+                    setInsight(`Σφάλμα: ${e.message}`);
+                } finally {
+                    setLoadingInsight(false);
+                }
+            };
+
+            const challenges = [
+                { id: 1, text: "Πιες ένα ποτήρι νερό τώρα 💧", category: "physical" },
+                { id: 2, text: "Κάνε 10 βαθιές αναπνοές 🌬️", category: "mindfulness" },
+                { id: 3, text: "Γράψε κάτι καλό για τον εαυτό σου ✨", category: "journal" },
+                { id: 4, text: "Κάνε μια σύντομη βόλτα 5 λεπτών 🚶", category: "physical" },
+                { id: 5, text: "Στείλε ένα μήνυμα σε έναν φίλο 💬", category: "social" }
+            ];
+
+            useEffect(() => {
+                const today = new Date().toDateString();
+                if (userData.dailyChallenge?.date !== today) {
+                    const random = challenges[Math.floor(Math.random() * challenges.length)];
+                    updateData({ dailyChallenge: { ...random, date: today, completed: false } });
+                }
+            }, [userData.dailyChallenge?.date, updateData]);
+
+            return (
+                <div className="main-content">
+                    {/* Daily Challenge Card */}
+                    <div className={`glass-card challenge-card full-width ${userData.dailyChallenge?.completed ? 'completed' : ''}`} style={{ borderLeft: '6px solid var(--sage-green)', background: userData.dailyChallenge?.completed ? 'rgba(212, 230, 208, 0.3)' : 'var(--bg-glass)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '14px', opacity: 0.7 }}>Η Πρόκληση της Ημέρας</h3>
+                                <p style={{ margin: '4px 0 0', fontWeight: 600 }}>{userData.dailyChallenge?.text}</p>
+                            </div>
+                            <button 
+                                className="glass-btn" 
+                                style={{ padding: '8px 16px', fontSize: '12px', background: userData.dailyChallenge?.completed ? '#43a047' : 'rgba(255,255,255,0.4)', color: userData.dailyChallenge?.completed ? 'white' : 'inherit' }}
+                                onClick={() => updateData({ dailyChallenge: { ...userData.dailyChallenge, completed: true } })}
+                                disabled={userData.dailyChallenge?.completed}
+                            >
+                                {userData.dailyChallenge?.completed ? '✓ Ολοκληρώθηκε' : 'Ολοκλήρωση'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Coping Suggestion for Low Mood */}
+                    {userData.todayMood && userData.todayMood <= 2 && (
+                        <div className="glass-card full-width" style={{ background: 'rgba(239, 68, 68, 0.05)', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+                            <h3 style={{ color: '#ef4444', margin: '0 0 8px' }}>💡 Μια μικρή συμβουλή</h3>
+                            <p style={{ margin: 0, fontSize: '14px' }}>
+                                Βλέπω ότι δεν νιώθεις πολύ καλά σήμερα. Ίσως μια μικρή άσκηση αναπνοής ή 5 λεπτά ησυχίας να σε βοηθήσουν. 
+                            </p>
+                        </div>
+                    )}
+                    {loadingAffirmation ? (
+                        <div className="glass-card affirmation-card full-width" style={{ padding: '16px 24px' }}>
+                            <p style={{ margin: 0, fontStyle: 'italic' }}>Φόρτωση του σημερινού σου μηνύματος...</p>
+                        </div>
+                    ) : userData.affirmationText ? (
+                        <div className="glass-card affirmation-card full-width" style={{ padding: '20px 24px' }}>
+                            <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7, marginBottom: '8px' }}>Για σήμερα</h3>
+                            <p style={{ margin: 0, color: 'var(--slate-800)', fontWeight: 500, fontStyle: 'italic', fontSize: '16px' }}>"{userData.affirmationText}"</p>
+                        </div>
+                    ) : null}
+
+                    <div className="glass-card">
+                        <h2>Πώς νιώθεις σήμερα;</h2>
+                        <p>Κατέγραψε τη διάθεσή σου για να μάθεις περισσότερα για τον εαυτό σου.</p>
+                        <div className={`emoji-selector ${userData.todayMood ? 'has-selection' : ''}`}>
+                            {emojis.map(e => (
+                                <div
+                                    key={e.val}
+                                    className={`emoji-btn ${userData.todayMood === e.val ? 'selected' : ''}`}
+                                    onClick={() => handleSelect(e.val)}
+                                    title={e.label}
+                                >
+                                    {e.char}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="glass-card">
+                        <h2>Η εβδομάδα σου</h2>
+                        <p>Μια ματιά στην πρόοδό σου.</p>
+                        <div className="chart-container">
+                            {(userData.chartData || []).map((d, i) => (
+                                <div key={i} className="chart-bar-wrapper">
+                                    <div
+                                        className="chart-bar"
+                                        style={{ height: `${(d.value / 5) * 100}%` }}
+                                        title={`${d.day}: ${d.value}/5`}
+                                    ></div>
+                                    <span className="chart-label">{d.day}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ marginTop: '24px' }}>
+                            <button className="glass-btn" onClick={handleWeeklyInsight} disabled={loadingInsight}>
+                                {loadingInsight ? 'Ανάλυση...' : '📊 AI Σύνοψη Εβδομάδας'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="glass-card">
+                        <h2>Ημερολόγιο Διάθεσης</h2>
+                        <p>Οι τελευταίες 28 ημέρες σου.</p>
+                        <MoodHeatmap moodHistory={userData.moodHistory || {}} />
+                    </div>
+
+                    {insight && (
+                        <div className="glass-card ai-analysis-card" style={{ animation: 'fadeIn 0.5s ease' }}>
+                            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>📅</span> Εβδομαδιαίο Insight
+                            </h3>
+                            <p style={{ color: 'var(--slate-800)', margin: 0 }}>{insight}</p>
+                        </div>
+                    )}
+
+                    <div className="glass-card">
+                        <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span>✨</span> Γωνιά Ευγνωμοσύνης
+                        </h2>
+                        <p>3 πράγματα για τα οποία είσαι ευγνώμων σήμερα;</p>
+                        <div className="gratitude-input-container">
+                            {[0, 1, 2].map(i => (
+                                <div key={i} className="gratitude-item">
+                                    <span>{i + 1}.</span>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Κάτι θετικό..."
+                                        value={userData.gratitude?.[i] || ''}
+                                        onChange={(e) => {
+                                            const newG = [...(userData.gratitude || ['', '', ''])];
+                                            newG[i] = e.target.value;
+                                            updateData({ gratitude: newG });
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Chat = ({ userData, updateData, onOpenSwitcher }) => {
+            const [input, setInput] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [isListening, setIsListening] = useState(false);
+            const scrollRef = useRef(null);
+            const recognitionRef = useRef(null);
+
+            const currentDoc = userData.assignedDoctor || DOCTORS[0];
+
+            const systemPrompt = `${currentDoc.systemPrompt}
+ΣΗΜΑΝΤΙΚΟ: Δεν έχεις ανθρώπινο όνομα εκτός από το ${currentDoc.name}. Αν στο ιστορικό δεις αναφορές σε άλλα ονόματα, αγνόησέ τα.
+Δεδομένα Χρήστη:
+- Όνομα: ${userData.name || 'Μη διαθέσιμο'}
+- Ηλικία: ${userData.age || 'Μη διαθέσιμο'}
+- Φύλο: ${userData.gender || 'Μη διαθέσιμο'}
+
+Απαντάς πάντα στα Ελληνικά με κατανόηση, ενθαρρύνεις τον/την ${userData.name || 'χρήστη'} σου και δίνεις ήπιες ψυχολογικές συμβουλές όταν χρειάζεται. Να είσαι φιλικός, ζεστός, αλλά περιεκτικός. Αν ο χρήστης είναι σε κίνδυνο, να προτείνεις πάντα να μιλήσει με γραμμές βοήθειας (π.χ. 10306).`;
+
+            // Setup Speech Recognition
+            useEffect(() => {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    recognitionRef.current = new SpeechRecognition();
+                    recognitionRef.current.continuous = false;
+                    recognitionRef.current.lang = 'el-GR'; // Greek
+                    recognitionRef.current.interimResults = false;
+
+                    recognitionRef.current.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        setInput(prev => prev ? `${prev} ${transcript}` : transcript);
+                        setIsListening(false);
+                    };
+
+                    recognitionRef.current.onerror = (event) => {
+                        console.error('Speech recognition error', event.error);
+                        setIsListening(false);
+                    };
+
+                    recognitionRef.current.onend = () => {
+                        setIsListening(false);
+                    };
+                }
+            }, []);
+
+            const toggleListening = () => {
+                if (isListening) {
+                    recognitionRef.current?.stop();
+                } else {
+                    recognitionRef.current?.start();
+                    setIsListening(true);
+                }
+            };
+
+
+            useEffect(() => {
+                setTimeout(() => {
+                    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+                }, 100);
+            }, [userData.chatHistory]);
+
+            const handleSend = async () => {
+                if (!input.trim() || loading) return;
+
+                const userText = input;
+                setInput('');
+                setLoading(true);
+
+                try {
+                    // 1. Generate Embedding for the user's message
+                    const embedding = await getEmbedding(userText);
+
+                    // 2. Perform Similarity Search in Supabase (Memory & Knowledge)
+                    const [{ data: memories }, { data: knowledge }] = await Promise.all([
+                        supabase.rpc('match_memory', {
+                            query_embedding: embedding,
+                            match_threshold: 0.5,
+                            match_count: 3,
+                            p_user_id: userData.uid || 'guest',
+                            p_doctor_id: currentDoc.id
+                        }),
+                        supabase.rpc('match_knowledge', {
+                            query_embedding: embedding,
+                            match_threshold: 0.5,
+                            match_count: 2,
+                            p_doctor_id: currentDoc.id
+                        })
+                    ]);
+
+                    // 3. Build Augmented Context
+                    let augmentedContext = "";
+                    if (memories && memories.length > 0) {
+                        augmentedContext += "\nΣυναφή αποσπάσματα από το παρελθόν σας:\n" + 
+                            memories.map(m => `- ${m.role === 'user' ? 'Χρήστης' : currentDoc.name}: ${m.content}`).join('\n');
+                    }
+                    if (knowledge && knowledge.length > 0) {
+                        augmentedContext += "\nΣχετικές θεραπευτικές τεχνικές/γνώσεις:\n" + 
+                            knowledge.map(k => `- ${k.content}`).join('\n');
+                    }
+
+                    const newHistory = [...(userData.chatHistory || []), { role: 'user', text: userText }];
+                    await updateData({ chatHistory: newHistory });
+
+                    const shortHistory = newHistory.slice(-6).map(m => {
+                        const speaker = m.role === 'user' ? (userData.name || 'Χρήστης') : currentDoc.name;
+                        return `${speaker}: ${m.text}`;
+                    }).join('\n\n');
+
+                    const prompt = `${augmentedContext}\n\nΙστορικό Συνομιλίας:\n${shortHistory}\n\nΟδηγία: Απάντα ως ${currentDoc.name}, ένας έμπειρος και ζεστός θεραπευτής. \n1. Δείξε ΕΝΣΥΝΑΙΣΘΗΣΗ. Πριν δώσεις οποιαδήποτε συμβουλή, δείξε στον χρήστη (${userData.name || 'Χρήστης'}) ότι κατάλαβες πώς νιώθει.\n2. Κάνε ΔΙΑΛΟΓΟ. Μην δίνεις μόνο ατάκες. Σχολίασε αυτά που σου είπε και κάνε μια ανοιχτή, ουσιαστική ερώτηση για να συνεχιστεί η κουβέντα φυσικά.\n3. Απόφευγε τα κλισέ. Μίλα ανθρώπινα, όπως θα μιλούσε ένας φίλος που είναι και ειδικός.\n4. Χρησιμοποίησε το όνομα του χρήστη ΣΠΑΝΙΑ, μόνο για να δείξεις ζεστασιά.`;
+
+                    const reply = await callGeminiAPI(prompt, systemPrompt);
+                    const cleanReply = reply.replace(new RegExp(`^${currentDoc.name}:\\s*`, 'i'), '');
+
+                    await updateData({
+                        chatHistory: [...newHistory, { role: 'ai', text: cleanReply }]
+                    });
+
+                    // 4. Save to Memory (Background - don't await so UI is fast)
+                    getEmbedding(cleanReply).then(replyEmbedding => {
+                        supabase.from('chat_memory').insert([
+                            { user_id: userData.uid || 'guest', doctor_id: currentDoc.id, content: userText, role: 'user', embedding },
+                            { user_id: userData.uid || 'guest', doctor_id: currentDoc.id, content: cleanReply, role: 'ai', embedding: replyEmbedding }
+                        ]).then(({ error }) => { if (error) console.error("Supabase Save Error:", error); });
+                    });
+
+                } catch (error) {
+                    console.error("RAG/Chat Error:", error);
+                    // Fallback: If everything fails, still try to get an answer
+                    const simpleHistory = [...(userData.chatHistory || []), { role: 'user', text: userText }];
+                    await updateData({ chatHistory: simpleHistory });
+                    try {
+                        const reply = await callGeminiAPI(userText, systemPrompt);
+                        await updateData({ chatHistory: [...simpleHistory, { role: 'ai', text: reply }] });
+                    } catch (e) {
+                        alert("Σφάλμα σύνδεσης. Ελέγξτε το API Key σας.");
+                    }
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="main-content" style={{ paddingBottom: '0' }}>
+                    <div className="glass-card chat-container full-width">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '10px', marginBottom: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontSize: '24px' }}>{currentDoc.emoji}</span>
+                                <h2 style={{ margin: 0, fontSize: '16px' }}>Συνεδρία με {currentDoc.name}</h2>
+                                <button 
+                                    onClick={onOpenSwitcher}
+                                    style={{ background: 'rgba(0,0,0,0.05)', border: 'none', borderRadius: '12px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}
+                                >
+                                    Αλλαγή
+                                </button>
+                            </div>
+                        </div>
+                        <div className="chat-messages" ref={scrollRef}>
+                            {(userData.chatHistory || []).map((m, i) => (
+                                <div key={i} className={`chat-bubble ${m.role}`}>
+                                    {m.text}
+                                </div>
+                            ))}
+                            {loading && (
+                                <div className="chat-bubble ai typing-indicator">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="chat-input-area">
+                            <button
+                                className="glass-btn"
+                                onClick={toggleListening}
+                                style={{ padding: '0 15px', color: isListening ? '#ef4444' : 'inherit', background: isListening ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.4)' }}
+                                title="Φωνητική υπαγόρευση"
+                            >
+                                🎙️
+                            </button>
+                            <input
+                                className="glass-input"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                placeholder={isListening ? "Σε ακούω..." : "Γράψε ή μίλα εδώ..."}
+                                disabled={loading}
+                            />
+                            <button className="glass-btn" onClick={handleSend} disabled={!input.trim() || loading} style={{ padding: '0 15px' }}>
+                                ✉
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Journal = ({ userData, updateData }) => {
+            const [loading, setLoading] = useState(false);
+            const [mode, setMode] = useState('free'); // 'free' or 'cbt'
+            const [searchQuery, setSearchQuery] = useState('');
+            const [searchResults, setSearchResults] = useState([]);
+            const [isSearching, setIsSearching] = useState(false);
+
+            const handleAnalyze = async () => {
+                const text = userData.todayJournal;
+                if (!text || !text.trim()) return;
+
+                setLoading(true);
+                await updateData({ todayAnalysis: '' });
+
+                try {
+                    const prompt = `Κάνε sentiment analysis (ανάλυση συναισθήματος) στο παρακάτω ημερολόγιο ενός χρήστη. Πες μου τι συναισθήματα εντοπίζεις (π.χ. άγχος, χαρά, απογοήτευση) και δώσε μια σύντομη, ενσυναισθητική και υποστηρικτική συμβουλή 2-3 προτάσεων. Κείμενο: "${text}"`;
+                    const systemContext = `Είσαι ένας ειδικός ψυχολόγος ανάλυσης συναισθήματος. Απαντάς σύντομα, περιεκτικά στα Ελληνικά, προσφέροντας γνήσια υποστήριξη. Να είσαι άμεσος και τρυφερός.
+Προφίλ χρήστη που έγραψε το ημερολόγιο: 
+- Όνομα: ${userData.name || 'Μη διαθέσιμο'}
+- Ηλικία: ${userData.age || 'Μη διαθέσιμο'}
+- Φύλο: ${userData.gender || 'Μη διαθέσιμο'}`;
+                    const result = await callGeminiAPI(prompt, systemContext);
+
+                    await updateData({ todayAnalysis: result });
+                } catch (error) {
+                    await updateData({ todayAnalysis: `Σφάλμα: ${error.message}` });
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleSaveAndEmbed = async () => {
+                if (!userData.todayJournal?.trim()) return;
+                setLoading(true);
+                try {
+                    const embedding = await getEmbedding(userData.todayJournal);
+                    await supabase.from('journal_memory').insert({
+                        user_id: userData.uid || 'guest',
+                        content: userData.todayJournal,
+                        embedding
+                    });
+                    alert('Η σκέψη αποθηκεύτηκε στη μνήμη του AI!');
+                } catch (e) { console.error(e); }
+                finally { setLoading(false); }
+            };
+
+            const handleSearch = async () => {
+                if (!searchQuery.trim()) return;
+                setIsSearching(true);
+                try {
+                    const embedding = await getEmbedding(searchQuery);
+                    const { data, error } = await supabase.rpc('match_journals', {
+                        query_embedding: embedding,
+                        match_threshold: 0.5,
+                        match_count: 5,
+                        p_user_id: userData.uid || 'guest'
+                    });
+                    if (error) throw error;
+                    setSearchResults(data || []);
+                } catch (e) { console.error(e); }
+                finally { setIsSearching(false); }
+            };
+
+            return (
+                <div className="main-content">
+                    <div className="journal-container">
+                        <div className="tab-switcher">
+                            <button className={mode === 'free' ? 'active' : ''} onClick={() => setMode('free')}>
+                                📔 Ημερολόγιο
+                            </button>
+                            <button className={mode === 'cbt' ? 'active' : ''} onClick={() => setMode('cbt')}>
+                                🧠 CBT
+                            </button>
+                        </div>
+
+                        {mode === 'cbt' ? (
+                            <CBTJournal updateData={updateData} />
+                        ) : (
+                            <>
+                                <div className="glass-card">
+                                    <h2 style={{ marginBottom: '20px' }}>Σημειώσεις Ημέρας</h2>
+                                    <textarea
+                                        className="glass-input"
+                                        style={{ height: '200px', resize: 'none', marginBottom: '20px', fontSize: '16px' }}
+                                        placeholder="Πώς νιώθεις σήμερα; Γράψε ελεύθερα τις σκέψεις σου..."
+                                        value={userData.todayJournal || ''}
+                                        onChange={(e) => updateData({ todayJournal: e.target.value })}
+                                    />
+                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                        <button className="glass-btn" onClick={handleAnalyze} disabled={loading} style={{ flex: 1 }}>
+                                            {loading ? '...' : '✨ AI Ανάλυση'}
+                                        </button>
+                                        <button className="glass-btn" onClick={handleSaveAndEmbed} disabled={loading} style={{ flex: 1, background: 'var(--sage-green)', color: 'var(--slate-800)' }}>
+                                            {loading ? '...' : '💾 Αποθήκευση'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {userData.todayAnalysis && (
+                                    <div className="glass-card ai-analysis-card" style={{ marginTop: '20px' }}>
+                                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--slate-800)' }}>
+                                            <span>💡</span> AI Insight
+                                        </h3>
+                                        <p style={{ margin: 0, lineHeight: '1.6' }}>{userData.todayAnalysis}</p>
+                                    </div>
+                                )}
+
+                                <div className="glass-card" style={{ marginTop: '30px' }}>
+                                    <h3 style={{ marginBottom: '15px' }}>🔍 Αναζήτηση στη Μνήμη</h3>
+                                    <div className="search-row">
+                                        <input 
+                                            className="glass-input" 
+                                            placeholder="Πότε ένιωσα..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                                        />
+                                        <button className="glass-btn" onClick={handleSearch} disabled={isSearching}>
+                                            {isSearching ? '...' : 'Αναζήτηση'}
+                                        </button>
+                                    </div>
+
+                                    {searchResults.length > 0 && (
+                                        <div style={{ marginTop: '10px' }}>
+                                            {searchResults.map((res, i) => (
+                                                <div key={i} className="search-result-item">
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#7e57c2' }}>
+                                                            {new Date(res.created_at).toLocaleDateString('el-GR')}
+                                                        </span>
+                                                        <span style={{ fontSize: '11px', opacity: 0.5 }}>
+                                                            {Math.round(res.similarity * 100)}% σχετικότητα
+                                                        </span>
+                                                    </div>
+                                                    <p style={{ margin: 0, fontSize: '15px', color: 'var(--slate-800)' }}>{res.content}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const CBTJournal = ({ updateData }) => {
+            const [step, setStep] = useState(1);
+            const [data, setData] = useState({ situation: '', thought: '', feeling: '', reframe: '' });
+            const [saved, setSaved] = useState(false);
+
+            const handleSave = () => {
+                // In a real app, we'd save this to a separate collection. 
+                // For now, we'll just show a success message.
+                setSaved(true);
+                setTimeout(() => {
+                    setSaved(false);
+                    setStep(1);
+                    setData({ situation: '', thought: '', feeling: '', reframe: '' });
+                }, 3000);
+            };
+
+            const steps = [
+                { id: 1, title: 'Η Κατάσταση', label: 'Τι συνέβη;', key: 'situation' },
+                { id: 2, title: 'Η Αυτόματη Σκέψη', label: 'Τι είπες στον εαυτό σου;', key: 'thought' },
+                { id: 3, title: 'Το Συναίσθημα', label: 'Πώς ένιωσες;', key: 'feeling' },
+                { id: 4, title: 'Η Αναπλαισίωση', label: 'Πώς θα μπορούσες να το δεις διαφορετικά;', key: 'reframe' }
+            ];
+
+            if (saved) return (
+                <div className="glass-card" style={{ textAlign: 'center', padding: '40px' }}>
+                    <div style={{ fontSize: '40px', marginBottom: '20px' }}>✨</div>
+                    <h3>Καταγράφηκε!</h3>
+                    <p>Η αναπλαισίωση των σκέψεων είναι ένα ισχυρό βήμα προς την ηρεμία.</p>
+                </div>
+            );
+
+            const current = steps.find(s => s.id === step);
+
+            return (
+                <div className="glass-card cbt-journal">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                        {steps.map(s => (
+                            <div key={s.id} style={{ height: '4px', flex: 1, background: s.id <= step ? 'var(--sage-green)' : 'rgba(0,0,0,0.05)', margin: '0 2px', borderRadius: '2px' }}></div>
+                        ))}
+                    </div>
+                    <h2>{current.title}</h2>
+                    <p>{current.label}</p>
+                    <textarea 
+                        className="glass-input" 
+                        style={{ minHeight: '120px', marginTop: '10px' }}
+                        value={data[current.key]}
+                        onChange={(e) => setData({ ...data, [current.key]: e.target.value })}
+                        placeholder="Γράψε εδώ..."
+                    />
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                        {step > 1 && <button className="glass-btn" onClick={() => setStep(step - 1)} style={{ flex: 1 }}>Πίσω</button>}
+                        {step < 4 ? (
+                            <button className="glass-btn" onClick={() => setStep(step + 1)} disabled={!data[current.key].trim()} style={{ flex: 2 }}>Επόμενο</button>
+                        ) : (
+                            <button className="glass-btn" onClick={handleSave} disabled={!data[current.key].trim()} style={{ flex: 2 }}>Ολοκλήρωση</button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+
+        const Profile = ({ user, userData, updateData, onOpenSwitcher }) => {
+            const [isEditing, setIsEditing] = useState(false);
+            const [editData, setEditData] = useState({
+                name: userData.name || '',
+                age: userData.age || '',
+                gender: userData.gender || ''
+            });
+
+            const handleClearData = async () => {
+                if (confirm("ΠΡΟΣΟΧΗ: Είστε σίγουροι; Θα διαγραφούν ΟΛΑ τα δεδομένα σας, το ιστορικό chat, οι σημειώσεις ημερολογίου και η μνήμη του AI. Αυτή η ενέργεια δεν αναιρείται.")) {
+                    try {
+                        // 1. Clear Supabase Tables
+                        const uid = userData.uid || 'guest';
+                        await Promise.all([
+                            supabase.from('chat_memory').delete().eq('user_id', uid),
+                            supabase.from('journal_memory').delete().eq('user_id', uid)
+                        ]);
+
+                        // 2. Clear Firebase User Data
+                        await updateData({
+                            chatHistory: defaultUserData.chatHistory,
+                            chartData: defaultUserData.chartData,
+                            todayMood: null,
+                            todayJournal: '',
+                            todayAnalysis: '',
+                            moodHistory: [],
+                            currentStreak: 0,
+                            longestStreak: 0,
+                            badges: []
+                        });
+
+                        alert("Όλα τα δεδομένα σας διαγράφηκαν οριστικά.");
+                    } catch (error) {
+                        console.error("Delete Error:", error);
+                        alert("Υπήρξε ένα πρόβλημα κατά τη διαγραφή ορισμένων δεδομένων.");
+                    }
+                }
+            };
+
+            const handleLogout = async () => {
+                await window.fb.signOut(window.fb.auth);
+            };
+
+            const handleSaveProfile = async () => {
+                await updateData(editData);
+                setIsEditing(false);
+            };
+
+            return (
+                <div className="main-content">
+                    <div className="glass-card" style={{ textAlign: 'center' }}>
+                        <div className="profile-avatar">👤</div>
+                        {isEditing ? (
+                            <div style={{ textAlign: 'left', marginTop: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Όνομα:</label>
+                                <input
+                                    className="glass-input"
+                                    value={editData.name}
+                                    onChange={e => setEditData({ ...editData, name: e.target.value })}
+                                />
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Ηλικία:</label>
+                                <input
+                                    type="number"
+                                    className="glass-input"
+                                    value={editData.age}
+                                    onChange={e => setEditData({ ...editData, age: e.target.value })}
+                                />
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Φύλο:</label>
+                                <select
+                                    className="glass-input"
+                                    value={editData.gender}
+                                    onChange={e => setEditData({ ...editData, gender: e.target.value })}
+                                >
+                                    <option value="">Επιλέξτε...</option>
+                                    <option value="Άνδρας">Άνδρας</option>
+                                    <option value="Γυναίκα">Γυναίκα</option>
+                                    <option value="Άλλο / Δεν επιθυμώ να απαντήσω">Άλλο / Δεν επιθυμώ να απαντήσω</option>
+                                </select>
+                                <button className="glass-btn" onClick={handleSaveProfile} style={{ marginTop: '16px' }}>Αποθήκευση</button>
+                            </div>
+                        ) : (
+                            <>
+                                <h2>{userData.name || user?.email}</h2>
+                                <p style={{ marginBottom: 0 }}>Premium Μέλος • {userData.age ? `${userData.age} ετών` : ''} {userData.gender ? `• ${userData.gender}` : ''}</p>
+
+                                <div style={{ background: 'rgba(255,255,255,0.4)', borderRadius: '20px', padding: '16px', marginTop: '20px', textAlign: 'left' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                                        <span style={{ fontSize: '32px' }}>{userData.assignedDoctor?.emoji || '👨‍⚕️'}</span>
+                                        <div>
+                                            <h3 style={{ margin: 0, fontSize: '16px' }}>Ο Θεραπευτής μου: {userData.assignedDoctor?.name || 'MindCare AI'}</h3>
+                                            <span style={{ fontSize: '12px', color: '#7e57c2', fontWeight: 600 }}>{userData.assignedDoctor?.approach}</span>
+                                        </div>
+                                    </div>
+                                    <button className="glass-btn" onClick={onOpenSwitcher} style={{ padding: '8px 16px', fontSize: '12px', background: 'rgba(255,255,255,0.4)', marginTop: '8px' }}>
+                                        Αλλαγή Θεραπευτή
+                                    </button>
+                                </div>
+
+                                <div style={{ background: 'rgba(255,255,255,0.4)', borderRadius: '20px', padding: '16px', marginTop: '20px', textAlign: 'left' }}>
+                                    <h3 style={{ fontSize: '16px', marginBottom: '8px' }}>🔥 Το Σερί μου</h3>
+                                    <p style={{ margin: 0, fontWeight: 600, color: '#ef4444' }}>{userData.currentStreak || 0} Ημέρες (Ρεκόρ: {userData.longestStreak || 0})</p>
+
+                                    {(userData.badges && userData.badges.length > 0) && (
+                                        <div style={{ marginTop: '12px' }}>
+                                            <h3 style={{ fontSize: '14px', marginBottom: '8px' }}>🏆 Εμβλήματα</h3>
+                                            <div>
+                                                {userData.badges.map((b, i) => <span key={i} className="badge">{b}</span>)}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button className="glass-btn" onClick={() => setIsEditing(true)} style={{ marginTop: '16px', background: 'rgba(255,255,255,0.4)' }}>
+                                    Επεξεργασία Προφίλ
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="glass-card">
+                        <h2>Δεδομένα & Λογαριασμός</h2>
+                        <button className="glass-btn" onClick={handleClearData} style={{ background: 'rgba(255,100,100,0.1)', border: '1px solid rgba(255,100,100,0.3)', color: '#ef4444', marginBottom: '12px' }}>
+                            Διαγραφή Δεδομένων Cloud
+                        </button>
+                        <button className="glass-btn" onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.4)' }}>
+                            Αποσύνδεση
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const Auth = () => {
+            const [isLogin, setIsLogin] = useState(true);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+                try {
+                    if (isLogin) {
+                        await window.fb.signInWithEmailAndPassword(window.fb.auth, email, password);
+                    } else {
+                        await window.fb.createUserWithEmailAndPassword(window.fb.auth, email, password);
+                    }
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="auth-container">
+                    <div className="glass-card" style={{ padding: '40px 30px' }}>
+                        <div className="auth-logo">MindCare</div>
+                        <div className="auth-subtitle">Το προσωπικό σας AI καταφύγιο</div>
+
+                        {error && <div className="error-message">{error}</div>}
+
+                        <form onSubmit={handleSubmit}>
+                            <input
+                                className="glass-input"
+                                type="email"
+                                placeholder="Email address"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <input
+                                className="glass-input"
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button type="submit" className="glass-btn" disabled={loading} style={{ marginTop: '16px' }}>
+                                {loading ? 'Παρακαλώ περιμένετε...' : (isLogin ? 'Σύνδεση' : 'Δημιουργία λογαριασμού')}
+                            </button>
+                        </form>
+
+                        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                            <p style={{ cursor: 'pointer', margin: 0, fontWeight: 500 }} onClick={() => { setIsLogin(!isLogin); setError(''); }}>
+                                {isLogin ? 'Δεν έχετε λογαριασμό; Εγγραφή' : 'Έχετε ήδη λογαριασμό; Σύνδεση'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Mindfulness = ({ userData }) => {
+            const [phase, setPhase] = useState('exhale'); // 'inhale', 'hold', 'exhale'
+            const [isActive, setIsActive] = useState(false);
+            const [timerText, setTimerText] = useState('Έτοιμοι;');
+
+            // AI Meditation State
+            const [loadingMeditation, setLoadingMeditation] = useState(false);
+            const [meditationText, setMeditationText] = useState('');
+            const [isPlaying, setIsPlaying] = useState(false);
+
+            const [pattern, setPattern] = useState('box'); // 'box', '478', 'relax'
+
+            useEffect(() => {
+                let phaseTimeout;
+
+                const runCycle = () => {
+                    if (pattern === 'box') {
+                        setPhase('inhale');
+                        setTimerText('Εισπνοή (4s)');
+                        phaseTimeout = setTimeout(() => {
+                            setPhase('hold');
+                            setTimerText('Κράτημα (4s)');
+                            phaseTimeout = setTimeout(() => {
+                                setPhase('exhale');
+                                setTimerText('Εκπνοή (4s)');
+                                phaseTimeout = setTimeout(() => {
+                                    setPhase('hold');
+                                    setTimerText('Κράτημα (4s)');
+                                    phaseTimeout = setTimeout(() => {
+                                        if (isActive) runCycle();
+                                    }, 4000);
+                                }, 4000);
+                            }, 4000);
+                        }, 4000);
+                    } else if (pattern === '478') {
+                        setPhase('inhale');
+                        setTimerText('Εισπνοή (4s)');
+                        phaseTimeout = setTimeout(() => {
+                            setPhase('hold');
+                            setTimerText('Κράτημα (7s)');
+                            phaseTimeout = setTimeout(() => {
+                                setPhase('exhale');
+                                setTimerText('Εκπνοή (8s)');
+                                phaseTimeout = setTimeout(() => {
+                                    if (isActive) runCycle();
+                                }, 8000);
+                            }, 7000);
+                        }, 4000);
+                    } else { // Relax
+                        setPhase('inhale');
+                        setTimerText('Εισπνοή (4s)');
+                        phaseTimeout = setTimeout(() => {
+                            setPhase('exhale');
+                            setTimerText('Εκπνοή (8s)');
+                            phaseTimeout = setTimeout(() => {
+                                if (isActive) runCycle();
+                            }, 8000);
+                        }, 4000);
+                    }
+                };
+
+                if (isActive) {
+                    runCycle();
+                } else {
+                    setPhase('exhale');
+                    setTimerText('Έτοιμοι;');
+                    clearTimeout(phaseTimeout);
+                }
+
+                return () => clearTimeout(phaseTimeout);
+            }, [isActive, pattern]);
+
+            const speakMeditation = (text) => {
+                if (!window.speechSynthesis) return;
+
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'el-GR';
+                utterance.rate = 0.85; 
+                
+                const currentDoc = userData.assignedDoctor || DOCTORS[0];
+                utterance.pitch = currentDoc.gender === 'male' ? 0.8 : 1.2;
+
+                const voices = window.speechSynthesis.getVoices();
+                const greekVoices = voices.filter(v => v.lang.includes('el'));
+                
+                let matchedVoice = greekVoices.find(v => {
+                    const name = v.name.toLowerCase();
+                    if (currentDoc.gender === 'male') return name.includes('male') || name.includes('man') || name.includes('stefanos');
+                    if (currentDoc.gender === 'female') return name.includes('female') || name.includes('woman') || name.includes('eleni');
+                    return false;
+                });
+
+                if (!matchedVoice) matchedVoice = greekVoices[0];
+                if (matchedVoice) utterance.voice = matchedVoice;
+
+                utterance.onend = () => setIsPlaying(false);
+                setIsPlaying(true);
+                window.speechSynthesis.speak(utterance);
+            };
+
+            const togglePlayback = () => {
+                if (isPlaying) {
+                    window.speechSynthesis.cancel();
+                    setIsPlaying(false);
+                } else if (meditationText) {
+                    speakMeditation(meditationText);
+                }
+            };
+
+            const handleGenerateMeditation = async () => {
+                setLoadingMeditation(true);
+                setMeditationText('');
+
+                try {
+                    const moodStr = userData.todayMood ? `Σήμερα νιώθει ${userData.todayMood}/5.` : 'Δεν έχει καταγράψει διάθεση σήμερα.';
+                    const journalStr = userData.todayJournal ? `Σκέψεις: "${userData.todayJournal}"` : '';
+
+                    const prompt = `Ο χρήστης (${userData.name}) χρειάζεται έναν σύντομο, καθοδηγούμενο διαλογισμό γείωσης. \n${moodStr} \n${journalStr}\n\nΓράψε ΕΝΑΝ πολύ σύντομο και χαλαρωτικό διαλογισμό (περίπου 3-4 προτάσεις) στα Ελληνικά προσαρμοσμένο στην παραπάνω κατάσταση.`;
+
+                    const systemContext = "Είσαι ένας δάσκαλος διαλογισμού. Μιλάς με ήρεμο, αργό και καθησυχαστικό τόνο.";
+                    const result = await callGeminiAPI(prompt, systemContext);
+
+                    setMeditationText(result);
+                    speakMeditation(result);
+                } catch (error) {
+                    setMeditationText(`Σφάλμα: ${error.message}`);
+                } finally {
+                    setLoadingMeditation(false);
+                }
+            };
+
+            // Cleanup speech when component unmounts
+            useEffect(() => {
+                return () => {
+                    if (window.speechSynthesis) window.speechSynthesis.cancel();
+                };
+            }, []);
+
+            return (
+                <div className="main-content">
+                    {/* Visual Breathing Exercise */}
+                    <div className="glass-card" style={{ textAlign: 'center', padding: '30px 20px', marginBottom: '20px' }}>
+                        <h2>Αναπνοή (Box Breathing)</h2>
+                        <p>Ακολούθησε το ρυθμό του κύκλου για να χαλαρώσεις.</p>
+
+                        <div className="pattern-selector">
+                            <button className={`pattern-btn ${pattern === 'box' ? 'active' : ''}`} onClick={() => setPattern('box')}>Box (4-4-4-4)</button>
+                            <button className={`pattern-btn ${pattern === '478' ? 'active' : ''}`} onClick={() => setPattern('478')}>4-7-8</button>
+                            <button className={`pattern-btn ${pattern === 'relax' ? 'active' : ''}`} onClick={() => setPattern('relax')}>Χαλάρωση</button>
+                        </div>
+
+                        <div className="mindfulness-container" style={{ padding: '10px 0', height: 'auto' }}>
+                            <div className={`breathing-circle ${phase}`} style={{ margin: '20px auto' }}>
+                                {timerText}
+                            </div>
+                        </div>
+
+                        <button
+                            className="glass-btn"
+                            onClick={() => setIsActive(!isActive)}
+                            style={{ background: isActive ? 'rgba(239, 68, 68, 0.1)' : '', color: isActive ? '#ef4444' : '', marginTop: '10px' }}
+                        >
+                            {isActive ? 'Διακοπή' : 'Έναρξη Άσκησης'}
+                        </button>
+                    </div>
+
+                    {/* AI Audio Meditation */}
+                    <div className="glass-card">
+                        <h2>🎧 AI Ηχητικός Διαλογισμός</h2>
+                        <p>Δημιούργησε έναν προσωπικό διαλογισμό βασισμένο στη σημερινή σου διάθεση.</p>
+
+                        <button className="glass-btn" onClick={handleGenerateMeditation} disabled={loadingMeditation} style={{ marginBottom: '16px' }}>
+                            {loadingMeditation ? 'Δημιουργία...' : '✨ Δημιουργία Διαλογισμού'}
+                        </button>
+
+                        {meditationText && (
+                            <div style={{ background: 'rgba(255,255,255,0.4)', padding: '16px', borderRadius: '16px', marginTop: '10px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                    <h3 style={{ margin: 0, fontSize: '15px', color: '#6366f1' }}>Ο Διαλογισμός σου</h3>
+                                    <button
+                                        onClick={togglePlayback}
+                                        style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}
+                                    >
+                                        {isPlaying ? '⏸️' : '▶️'}
+                                    </button>
+                                </div>
+                                <p style={{ fontSize: '15px', fontStyle: 'italic', lineHeight: '1.6', margin: 0, color: 'var(--slate-800)' }}>
+                                    "{meditationText}"
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const CrisisResources = () => {
+            const helplines = [
+                { name: 'Γραμμή Ψυχολογικής Υποστήριξης', number: '10306', color: '#ef4444' },
+                { name: 'Γραμμή Παρέμβασης για την Αυτοκτονία', number: '1018', color: '#b91c1c' },
+                { name: 'Εθνικό Κέντρο Κοινωνικής Αλληλεγγύης', number: '197', color: '#3b82f6' },
+                { name: 'ΕΚΑΒ', number: '166', color: '#334155' }
+            ];
+
+            return (
+                <div className="main-content">
+                    <div className="glass-card full-width" style={{ background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+                        <h2 style={{ color: '#ef4444' }}>Άμεση Βοήθεια</h2>
+                        <p>Αν νιώθεις ότι κινδυνεύεις ή χρειάζεσαι κάποιον να μιλήσεις τώρα, μη διστάσεις.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '20px' }}>
+                            {helplines.map((h, i) => (
+                                <a key={i} href={`tel:${h.number}`} className="emergency-btn" style={{ background: h.color, margin: 0 }}>
+                                    {h.number} - {h.name}
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="glass-card">
+                        <h2>Τεχνική Γείωσης 5-4-3-2-1</h2>
+                        <p>Όταν νιώθεις έντονο άγχος, προσπάθησε να εστιάσεις στις αισθήσεις σου:</p>
+                        <ul style={{ paddingLeft: '20px', color: 'var(--slate-800)', lineHeight: '2' }}>
+                            <li>👀 5 πράγματα που βλέπεις</li>
+                            <li>✋ 4 πράγματα που αγγίζεις</li>
+                            <li>👂 3 πράγματα που ακούς</li>
+                            <li>👃 2 πράγματα που μυρίζεις</li>
+                            <li>👅 1 πράγμα που γεύεσαι</li>
+                        </ul>
+                    </div>
+
+                    <div className="glass-card">
+                        <h2>Συμβουλές για Κρίση Πανικού</h2>
+                        <ul style={{ paddingLeft: '20px', color: 'var(--slate-800)', lineHeight: '1.8' }}>
+                            <li>Θυμήσου ότι αυτό που νιώθεις <strong>θα περάσει</strong>.</li>
+                            <li>Εστίασε στην αναπνοή σου - αργή εισπνοή, ακόμα πιο αργή εκπνοή.</li>
+                            <li>Προσπάθησε να μην "παλεύεις" με τα συμπτώματα. Άφησέ τα να κυλήσουν.</li>
+                            <li>Βρέξε το πρόσωπό σου με κρύο νερό.</li>
+                        </ul>
+                    </div>
+                </div>
+            );
+        };
+
+        const ProfileSetup = ({ userData, updateData }) => {
+            const [formData, setFormData] = useState({
+                name: '',
+                age: '',
+                gender: ''
+            });
+            const [loading, setLoading] = useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                await updateData(formData);
+                setLoading(false);
+            };
+
+            return (
+                <div className="auth-container">
+                    <div className="glass-card" style={{ padding: '40px 30px' }}>
+                        <div className="auth-logo" style={{ fontSize: '32px' }}>Καλώς ήρθες!</div>
+                        <div className="auth-subtitle">Ας δημιουργήσουμε το προφίλ σου. Αυτά τα στοιχεία βοηθούν το MindCare AI να σε καταλάβει καλύτερα.</div>
+
+                        <form onSubmit={handleSubmit}>
+                            <input
+                                className="glass-input"
+                                type="text"
+                                placeholder="Το όνομά σου"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                required
+                            />
+                            <input
+                                className="glass-input"
+                                type="number"
+                                placeholder="Η ηλικία σου"
+                                value={formData.age}
+                                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                                required
+                            />
+                            <select
+                                className="glass-input"
+                                value={formData.gender}
+                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                required
+                            >
+                                <option value="" disabled>Το φύλο σου</option>
+                                <option value="Άνδρας">Άνδρας</option>
+                                <option value="Γυναίκα">Γυναίκα</option>
+                                <option value="Άλλο / Δεν επιθυμώ να απαντήσω">Άλλο / Δεν επιθυμώ να απαντήσω</option>
+                            </select>
+
+                            <button type="submit" className="glass-btn" disabled={loading} style={{ marginTop: '16px' }}>
+                                {loading ? 'Αποθήκευση...' : 'Ολοκλήρωση'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        const DoctorRevealCard = ({ doctor, onFinish }) => {
+            return (
+                <div className="auth-container">
+                    <div className="reveal-card">
+                        <div className="reveal-avatar">{doctor.emoji}</div>
+                        <div className="approach-badge">{doctor.approach}</div>
+                        <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>{doctor.name}</h1>
+                        <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--slate-500)', marginBottom: '16px' }}>{doctor.tagline}</p>
+                        <p style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '32px' }}>{doctor.description}</p>
+                        <button className="glass-btn" onClick={onFinish}>Έναρξη Συνεδρίας</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const DoctorQuiz = ({ updateData }) => {
+            const [step, setStep] = useState(0); // 0 to 5 for questions, 6 for matching, 7 for reveal
+            const [scores, setScores] = useState({ elena: 0, andreas: 0, sofia: 0, nikos: 0 });
+            const [matchedDoctor, setMatchedDoctor] = useState(null);
+
+            const handleOptionClick = (weight) => {
+                const newScores = { ...scores };
+                Object.keys(weight).forEach(docId => {
+                    newScores[docId] += weight[docId];
+                });
+                setScores(newScores);
+
+                if (step < QUESTIONS.length - 1) {
+                    setStep(step + 1);
+                } else {
+                    setStep(QUESTIONS.length); // Go to matching screen
+                    
+                    // Algorithm: Find doctor with highest score
+                    const winnerId = Object.keys(newScores).reduce((a, b) => newScores[a] > newScores[b] ? a : b);
+                    const winner = DOCTORS.find(d => d.id === winnerId);
+                    setMatchedDoctor(winner);
+
+                    // Artificial delay for "matching" effect
+                    setTimeout(() => {
+                        setStep(QUESTIONS.length + 1); // Go to reveal screen
+                    }, 2500);
+                }
+            };
+
+            const finishQuiz = async () => {
+                await updateData({
+                    assignedDoctor: matchedDoctor,
+                    quizCompleted: true,
+                    // Clear history to start fresh with new doctor
+                    chatHistory: [{ role: 'ai', text: `Γεια σου! Είμαι ${matchedDoctor.prefix} ${matchedDoctor.name}. Χαίρομαι πολύ που θα δουλέψουμε μαζί. Η προσέγγισή μου επικεντρώνεται σε ${matchedDoctor.approach}. Πώς μπορώ να σε βοηθήσω σήμερα;` }]
+                });
+            };
+
+            if (step === QUESTIONS.length) {
+                return (
+                    <div className="auth-container">
+                        <div className="glass-card matching-screen">
+                            <div className="matching-loader"></div>
+                            <h2>Αναζήτηση του κατάλληλου θεραπευτή...</h2>
+                            <p>Αναλύουμε τις απαντήσεις σου για να βρούμε την καλύτερη αντιστοιχία.</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (step === QUESTIONS.length + 1) {
+                return <DoctorRevealCard doctor={matchedDoctor} onFinish={finishQuiz} />;
+            }
+
+            const currentQuestion = QUESTIONS[step];
+            const progress = ((step + 1) / QUESTIONS.length) * 100;
+
+            return (
+                <div className="auth-container">
+                    <div className="quiz-container">
+                        <div className="quiz-progress">
+                            <div className="quiz-progress-bar" style={{ width: `${progress}%` }}></div>
+                        </div>
+                        <h2 className="quiz-question">{currentQuestion.text}</h2>
+                        <div className="quiz-options">
+                            {currentQuestion.options.map((opt, i) => (
+                                <div key={i} className="quiz-option" onClick={() => handleOptionClick(opt.weight)}>
+                                    {opt.text}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const DoctorSwitcher = ({ currentDoctor, onSwitch, onClose }) => {
+            return (
+                <div className="sos-modal-overlay" style={{ zIndex: 4000 }}>
+                    <div className="sos-card" style={{ maxWidth: '600px', background: 'var(--bg-glass)', color: 'var(--slate-800)' }}>
+                        <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: 'var(--slate-800)', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+                        <h2 style={{ color: 'var(--slate-800)', textAlign: 'center' }}>Επιλογή Θεραπευτή</h2>
+                        <p style={{ textAlign: 'center', marginBottom: '24px' }}>Μπορείς να αλλάξεις θεραπευτή ανά πάσα στιγμή. Κάθε γιατρός έχει διαφορετική προσέγγιση.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                            {DOCTORS.map(doc => (
+                                <div 
+                                    key={doc.id} 
+                                    className={`glass-card ${currentDoctor?.id === doc.id ? 'active' : ''}`}
+                                    style={{ 
+                                        margin: 0, 
+                                        cursor: 'pointer', 
+                                        border: currentDoctor?.id === doc.id ? '2px solid #7e57c2' : '1px solid var(--border-glass)',
+                                        padding: '16px'
+                                    }}
+                                    onClick={() => onSwitch(doc)}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                                        <span style={{ fontSize: '32px' }}>{doc.emoji}</span>
+                                        <div>
+                                            <h3 style={{ margin: 0, fontSize: '18px' }}>{doc.name}</h3>
+                                            <span style={{ fontSize: '12px', color: '#7e57c2', fontWeight: 600 }}>{doc.approach}</span>
+                                        </div>
+                                    </div>
+                                    <p style={{ fontSize: '13px', margin: 0, lineHeight: '1.4' }}>{doc.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const MainApp = ({ user }) => {
+            const [currentTab, setCurrentTab] = useState('home');
+            const [sosActive, setSosActive] = useState(false);
+            const [showSwitcher, setShowSwitcher] = useState(false);
+            const { userData, updateData, dataLoading } = useUserData(user);
+
+            // Auto-seed doctor knowledge if table is empty
+            useEffect(() => {
+                const checkAndSeed = async () => {
+                    try {
+                        const { data, error } = await supabase.from('doctor_knowledge').select('id').limit(1);
+                        if (!error && (!data || data.length === 0)) {
+                            console.log("Auto-seeding doctor knowledge...");
+                            await seedDoctorKnowledge();
+                        }
+                    } catch (e) {
+                        console.error("Auto-sync error:", e);
+                    }
+                };
+                if (user) checkAndSeed();
+            }, [user]);
+
+            const isProfileComplete = userData?.name && userData?.age && userData?.gender;
+            const isQuizComplete = userData?.quizCompleted;
+
+            const handleSwitchDoctor = async (doc) => {
+                if (confirm(`Θέλετε σίγουρα να αλλάξετε τον θεραπευτή σας σε ${doc.name}; Το ιστορικό συνομιλίας θα μηδενιστεί.`)) {
+                    await updateData({
+                        assignedDoctor: doc,
+                        chatHistory: [{ role: 'ai', text: `Γεια σου! Είμαι ${doc.prefix} ${doc.name}. Χαίρομαι που σε γνωρίζω. Η προσέγγισή μου επικεντρώνεται σε ${doc.approach}. Πώς μπορώ να σε βοηθήσω σήμερα;` }]
+                    });
+                    setShowSwitcher(false);
+                }
+            };
+
+            const renderTab = () => {
+                if (dataLoading) return <div style={{ textAlign: 'center', marginTop: '50px' }}>Φόρτωση δεδομένων...</div>;
+                if (!isProfileComplete) return <ProfileSetup userData={userData} updateData={updateData} />;
+                if (!isQuizComplete) return <DoctorQuiz updateData={updateData} />;
+
+                switch (currentTab) {
+                    case 'home': return <Home userData={userData} updateData={updateData} />;
+                    case 'chat': return <Chat userData={userData} updateData={updateData} onOpenSwitcher={() => setShowSwitcher(true)} />;
+                    case 'journal': return <Journal userData={userData} updateData={updateData} />;
+                    case 'mindfulness': return <Mindfulness userData={userData} />;
+                    case 'crisis': return <CrisisResources />;
+                    case 'profile': return <Profile user={user} userData={userData} updateData={updateData} onOpenSwitcher={() => setShowSwitcher(true)} />;
+                    default: return <Home userData={userData} updateData={updateData} />;
+                }
+            };
+
+            const formatDate = () => {
+                const options = { weekday: 'short', month: 'short', day: 'numeric' };
+                return new Date().toLocaleDateString('el-GR', options);
+            };
+
+            const getMoodColors = () => {
+                const mood = userData?.todayMood || 3;
+                switch (mood) {
+                    case 1: return { blob1: 'rgba(148, 163, 184, 0.8)', blob2: 'rgba(203, 213, 225, 0.8)' }; // Slate/Grey
+                    case 2: return { blob1: 'rgba(147, 197, 253, 0.8)', blob2: 'rgba(191, 219, 254, 0.8)' }; // Blue
+                    case 3: return { blob1: 'rgba(212, 230, 208, 0.8)', blob2: 'rgba(232, 226, 245, 0.8)' }; // Original Sage/Lavender
+                    case 4: return { blob1: 'rgba(232, 226, 245, 0.8)', blob2: 'rgba(253, 186, 116, 0.8)' }; // Lavender/Orange
+                    case 5: return { blob1: 'rgba(167, 243, 208, 0.8)', blob2: 'rgba(252, 211, 77, 0.8)' }; // Green/Gold
+                    default: return { blob1: 'rgba(212, 230, 208, 0.8)', blob2: 'rgba(232, 226, 245, 0.8)' };
+                }
+            };
+
+            const colors = getMoodColors();
+
+            return (
+                <>
+                    <Sidebar currentTab={currentTab} setTab={setCurrentTab} />
+                    <div className="app-container">
+                        <div className="blob-1" style={{ background: colors.blob1 }}></div>
+                        <div className="blob-2" style={{ background: colors.blob2 }}></div>
+                        <header>
+                            <h1>MindCare</h1>
+                            <div className="date-badge">{formatDate()}</div>
+                        </header>
+                        {renderTab()}
+                        {!dataLoading && isProfileComplete && (
+                            <>
+                                <div className="sos-btn" onClick={() => setSosActive(true)}>SOS</div>
+                                <BottomNav currentTab={currentTab} setTab={setCurrentTab} />
+                            </>
+                        )}
+                    </div>
+
+                    {sosActive && (
+                        <div className="sos-modal-overlay">
+                            <div className="sos-card">
+                                <button onClick={() => setSosActive(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+                                <h2>Κρίση Πανικού / Άγχους;</h2>
+                                <p>Ανάπνευσε αργά... Ακολούθησε την τεχνική γείωσης 5-4-3-2-1. Βρες γύρω σου:</p>
+                                <ul>
+                                    <li><strong>5</strong> πράγματα που μπορείς να δεις</li>
+                                    <li><strong>4</strong> πράγματα που μπορείς να αγγίξεις</li>
+                                    <li><strong>3</strong> πράγματα που μπορείς να ακούσεις</li>
+                                    <li><strong>2</strong> πράγματα που μπορείς να μυρίσεις</li>
+                                    <li><strong>1</strong> πράγμα που μπορείς να γευτείς</li>
+                                </ul>
+                                <p style={{ fontSize: '13px', marginBottom: '16px' }}>Εάν χρειάζεσαι άμεση βοήθεια με ειδικούς, κάλεσε τώρα:</p>
+                                <a href="tel:10306" className="emergency-btn">📞 10306 - Γραμμή Ψυχολογικής Υποστήριξης</a>
+                                <a href="tel:166" className="emergency-btn" style={{ background: '#334155' }}>🚑 166 - ΕΚΑΒ</a>
+                            </div>
+                        </div>
+                    )}
+
+                    {showSwitcher && (
+                        <DoctorSwitcher 
+                            currentDoctor={userData.assignedDoctor} 
+                            onSwitch={handleSwitchDoctor} 
+                            onClose={() => setShowSwitcher(false)} 
+                        />
+                    )}
+                </>
+            );
+        };
+
+        const AppProvider = () => {
+            const [user, setUser] = useState(null);
+            const [authChecked, setAuthChecked] = useState(false);
+
+            useEffect(() => {
+                // Wait for external module to initialize window.fb
+                const initAuth = () => {
+                    const unsubscribe = window.fb.onAuthStateChanged(window.fb.auth, (currentUser) => {
+                        setUser(currentUser);
+                        setAuthChecked(true);
+                    });
+                    return unsubscribe;
+                };
+
+                if (window.fb) {
+                    return initAuth();
+                } else {
+                    window.addEventListener('firebaseInit', initAuth);
+                    return () => window.removeEventListener('firebaseInit', initAuth);
+                }
+            }, []);
+
+            if (!authChecked) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Φόρτωση...</div>;
+            if (!user) return <Auth />;
+            return <MainApp user={user} />;
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AppProvider />);
+    </script>
+</body>
+
+</html>
